@@ -2,7 +2,7 @@ description: >
     Generate an authentication token and logs into ECR.
 
 parameters:
-    generator-url:
+    generator-endpoint:
       description: 'Generate Docker Credentials Endpoint'
         type: string
 
