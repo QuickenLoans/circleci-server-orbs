@@ -1,0 +1,28 @@
+description: >
+    Generate credentials to log in to ECR.
+
+parameters:
+    generator-url:
+      description: 'Generate Docker Credentials Endpoint'
+        type: string
+
+    environment:
+        description: 'ID of the environment'
+        type: string
+
+    region:
+        description: 'AWS region'
+        type: string
+
+steps:
+    - run:
+        name: 'Generates Credentials and logs in to ECR'
+        command: |
+          read endpoint token < <(echo $(curl --request POST \
+          "<< parameters.generator-url >>?environment=<< parameters.environment >>&region=<< parameters.region >>" \
+          --header "Authorization: token ${HAL_API_TOKEN}" | jq -r '.proxy_endpoint, .authorization_token' ))
+
+          # the token is base64 encoded with username:password
+          echo "${token}" | base64 -d | cut -d: -f2 | docker login \
+            --username AWS |
+            --password-stdin "${endpoint}"
