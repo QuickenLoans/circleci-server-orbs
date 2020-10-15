@@ -22,7 +22,6 @@ steps:
           "<< parameters.generator-endpoint >>?environment=<< parameters.environment >>&region=<< parameters.region >>" \
           --header "Authorization: token ${HAL_API_TOKEN}" | jq -r '.proxy_endpoint, .authorization_token' ))
 
-          # the token is base64 encoded with username:password
           echo "${token}" docker login \
             --username AWS |
             --password-stdin "${endpoint}"
