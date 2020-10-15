@@ -15,13 +15,19 @@ parameters:
         type: string
 
 steps:
-    - run:
-        name: 'Generate Credentials and Login to ECR'
-        command: |
+  - run:
+      name: Install jq
+      command: |
+          sudo apt-get update
+          sudo apt-get install jq -y
+
+  - run:
+      name: 'Generates Docker Credentials'
+      command: |
           read endpoint token < <(echo $(curl --request POST \
-          "<< parameters.generator-endpoint >>?environment=<< parameters.environment >>&region=<< parameters.region >>" \
+          "<< parameters.generator-url >>?environment=<< parameters.environment >>&region=<< parameters.region >>" \
           --header "Authorization: token ${HAL_API_TOKEN}" | jq -r '.proxy_endpoint, .authorization_token' ))
 
           echo "${token}" docker login \
-            --username AWS |
+            --username AWS \
             --password-stdin "${endpoint}"
