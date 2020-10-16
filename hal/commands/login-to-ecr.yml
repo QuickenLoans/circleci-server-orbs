@@ -44,7 +44,7 @@ steps:
       name: 'Generates Docker Credentials'
       command: |
           if [[ "${<< parameters.api-token-var >>}" != "HAL_API_TOKEN" ]] ; then
-              echo "export HAL_API_TOKEN=${<< parameters.api-token-var >>}" >> $BASH_ENV
+              export HAL_API_TOKEN="${<< parameters.api-token-var >>}"
           fi
 
           read endpoint token < <(echo $(curl --request POST \
