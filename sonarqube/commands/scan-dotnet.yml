@@ -5,24 +5,32 @@ parameters:
   project-key:
     description: Key for the analyzed project in Sonar
     type: string
+
   project-name:
     description: Name of project in Sonar
     type: string
+
   host-url:
     description: Host URL where scan results will be posted
     type: string
+
   auth-token:
     description: Sonar Access Token to log in with
     type: string
+
   csproj-file-path:
     description: Path to .csproj file that will be executing tests.
     type: string
+
   config-file-path:
     description: Path to Nuget config file that will be used in dotnet restore
     type: string
+    default: ""
+
   additional-dotnet-test-flags:
     description: Additional flags to pass to dotnet test {TestProject.csproj} command
     type: string
+    default: ""
 
 steps:
   - checkout
