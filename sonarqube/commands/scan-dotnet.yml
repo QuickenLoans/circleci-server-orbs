@@ -28,22 +28,48 @@ steps:
   - checkout
   - restore_cache:
       keys:
-        - sonar_scanner_dotnet
+        - sonar_scanner_dependencies
   - run:
-      name: Download Sonar
+      name: Download Sonar and OpenJDK for Linux
       command: |
-        if [[ ! -x "~/tools/dotnet-sonarscanner" ]]; then
-          echo "Installing Sonar Scanner"
-          dotnet tool install dotnet-sonarscanner --tool-path ~/tools
+        # Set JAVA_HOME path variable
+        export JAVA_HOME=jdk-15.0.1
+        export PATH=$JAVA_HOME/bin:$PATH
+
+        if [ ! -d "$JAVA_HOME" ]; then
+          echo "Installing OpenJDK..."
+
+          wget https://download.java.net/java/GA/jdk15.0.1/51f4f36ad4ef43e39d0dfdbaf6549e32/9/GPL/openjdk-15.0.1_linux-x64_bin.tar.gz
+
+          tar xvf openjdk-15*_bin.tar.gz
         else
-          echo "Sonar Scanner already installed"
+          echo "Java restored from cache"
         fi
+
+        if [ ! -d "~/tools/" ]; then
+          echo "Installing Sonar Scanner..."
+
+          dotnet tool install dotnet-sonarscanner --tool-path ~/tools
+
+          echo "folder structure:"
+          ls -la
+        else
+          echo "Sonar Scanner restored from cache"
+        fi
+
   - save_cache:
-        key: sonar_scanner_dotnet
-        paths: ~/tools/dotnet-sonarscanner
+        key: sonar_scanner_dependencies
+        paths:
+          - jdk-15.0.1/
+          - ~/tools/dotnet-sonarscanner
+
   - run:
       name: Run Sonar Scanner
       command: |
+        # Set JAVA_HOME path variable
+        export JAVA_HOME=jdk-15.0.1/
+        export PATH=$JAVA_HOME/bin:$PATH
+
         ~/tools/dotnet-sonarscanner begin \
           /k:"<< parameters.project-key >>" \
           /n:"<< parameters.project-name >>" \
