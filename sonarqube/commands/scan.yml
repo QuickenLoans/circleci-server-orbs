@@ -19,10 +19,6 @@ parameters:
     description: 'Branch name'
     type: string
     default: $CIRCLE_BRANCH
-  settings-file:
-    description: 'Settings file'
-    type: string
-    default: sonar-project.properties
 
 
 steps:
@@ -51,8 +47,7 @@ steps:
                 -Dsonar.login=<< parameters.token >> \
                 -Dsonar.projectKey=<< parameters.project-key >> \
                 -Dsonar.projectVersion=<< parameters.version >> \
-                -Dsonar.branch.name=<< parameters.branch >> \
-                -Dproject.settings=<< parameters.settings-file >>
+                -Dsonar.branch.name=<< parameters.branch >>
 
     - save_cache:
         key: v1-sonarcloud-scanner-4.5.0.2216
