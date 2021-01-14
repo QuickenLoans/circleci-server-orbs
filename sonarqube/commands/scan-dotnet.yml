@@ -54,7 +54,7 @@ steps:
           echo "Java restored from cache"
         fi
 
-        if [ ! -d "~/tools/" ]; then
+        if [ ! -d "/root/tools/" ]; then
           echo "Installing Sonar Scanner..."
 
           dotnet tool install dotnet-sonarscanner --tool-path ~/tools
