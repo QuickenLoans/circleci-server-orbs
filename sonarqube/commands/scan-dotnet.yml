@@ -1,0 +1,102 @@
+description: >
+  Sonar Scanner for .NET Core 2.1+ project
+
+parameters:
+  project-key:
+    description: Key for the analyzed project in Sonar
+    type: string
+
+  project-name:
+    description: Name of project in Sonar
+    type: string
+
+  host-url:
+    description: Host URL where scan results will be posted
+    type: string
+
+  auth-token:
+    description: Sonar Access Token to log in with
+    type: string
+
+  csproj-file-path:
+    description: Path to .csproj file that will be executing tests.
+    type: string
+
+  config-file-path:
+    description: Path to Nuget config file that will be used in dotnet restore
+    type: string
+    default: ""
+
+  additional-dotnet-test-flags:
+    description: Additional flags to pass to dotnet test {TestProject.csproj} command
+    type: string
+    default: ""
+
+steps:
+  - checkout
+  - restore_cache:
+      keys:
+        - sonar_scanner_dependencies
+  - run:
+      name: Download Sonar and OpenJDK for Linux
+      command: |
+        # Set JAVA_HOME path variable
+        export JAVA_HOME=jdk-15.0.1
+        export PATH=$JAVA_HOME/bin:$PATH
+
+        if [ ! -d "$JAVA_HOME" ]; then
+          echo "Installing OpenJDK..."
+
+          wget https://download.java.net/java/GA/jdk15.0.1/51f4f36ad4ef43e39d0dfdbaf6549e32/9/GPL/openjdk-15.0.1_linux-x64_bin.tar.gz
+
+          tar xvf openjdk-15*_bin.tar.gz
+        else
+          echo "Java restored from cache"
+        fi
+
+        if [ ! -d "/root/tools/" ]; then
+          echo "Installing Sonar Scanner..."
+
+          dotnet tool install dotnet-sonarscanner --tool-path ~/tools
+
+          echo "folder structure:"
+          ls -la
+        else
+          echo "Sonar Scanner restored from cache"
+        fi
+
+  - save_cache:
+        key: sonar_scanner_dependencies
+        paths:
+          - jdk-15.0.1/
+          - ~/tools/dotnet-sonarscanner
+
+  - run:
+      name: Run Sonar Scanner
+      command: |
+        # Set JAVA_HOME path variable
+        export JAVA_HOME=jdk-15.0.1/
+        export PATH=$JAVA_HOME/bin:$PATH
+
+        ~/tools/dotnet-sonarscanner begin \
+          /k:"<< parameters.project-key >>" \
+          /n:"<< parameters.project-name >>" \
+          /v:"$CIRCLE_SHA1" \
+          /d:sonar.host.url="<< parameters.host-url >>" \
+          /d:sonar.login="<< parameters.auth-token >>" \
+          /d:sonar.branch.name="$CIRCLE_BRANCH"
+        
+        if [ << parameters.config-file-path >> ]; then
+          dotnet restore << parameters.csproj-file-path >> \
+            --configfile=<< parameters.config-file-path >>
+        else
+          dotnet restore << parameters.csproj-file-path >>
+        fi
+
+        dotnet test << parameters.csproj-file-path >> \
+        --no-restore \
+        --logger "trx;LogFileName=testresults.trx" \
+        /p:CollectCoverage=true \
+        /p:CoverletOutputFormat=opencover << parameters.additional-dotnet-test-flags >>
+
+        ~/tools/dotnet-sonarscanner end /d:sonar.login="<< parameters.auth-token >>"
