@@ -158,8 +158,8 @@ steps:
                     fi
 
                     publish-build-to-hal \
-                        <<# parameters.arguments >><< parameters.arguments >> \\<</parameters.arguments >>
-                        <<# parameters.from-deployment-setting >>--from-setting << parameters.from-deployment-setting >> \\<</parameters.from-deployment-setting >>
+                        <<# parameters.arguments >><< parameters.arguments >><</ parameters.arguments >> \
+                        <<# parameters.from-deployment-setting >>--from-setting << parameters.from-deployment-setting >><</ parameters.from-deployment-setting >> \
                         --environment "<< parameters.environment >>"
 
     - unless:
