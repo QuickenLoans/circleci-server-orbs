@@ -16,6 +16,10 @@ parameters:
         description: 'Name or ID of a Hal environment. Leave blank to create an environment-independent build (default behavior).'
         default: ''
         type: string
+    from_deployment_setting:
+        description: 'Should that be ID of the deployment setting to use to import settings into this job. Inherit saved parameters, secrets, and other settings from this deployment setting.'
+        default: ''
+        type: string
 
     arguments:
         description: 'If you wish to pass any additional arguments to the command'
@@ -152,6 +156,7 @@ steps:
                     fi
 
                     publish-build-to-hal \
+                        <<# parameters.from_deployment_setting >> --from-setting << parameters.from_deployment_setting >> \\<</parameters.from_deployment_setting >>
                         --environment "<< parameters.environment >>"<<# parameters.arguments >> << parameters.arguments >><</parameters.arguments >>
 
     - unless:
