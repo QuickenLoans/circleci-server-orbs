@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](http://keepachangelog.com/).
 > Sections: (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`, `API Changes`, `Entity Changes`)
 
+## [0.7.0] - 2021-03-10
+
+- Added `from-deployment-setting` parameter to the `hal/build` and `hal/publish` jobs.
+  > Use `from-deployment-setting` to specify a deployment setting to inherit configuration from.
+
 ## [0.6.0] - 2020-10-26
 
 ### Added

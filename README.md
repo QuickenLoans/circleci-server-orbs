@@ -2,7 +2,6 @@
 
 Internal CircleCI Orbs for Rocket Mortgage Technology.
 
-
 ## Instructions
 
 In order to create an orb, or public versions, set `CIRCLECI_CLI_TOKEN` to a CircleCI API token.
