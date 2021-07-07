@@ -1,0 +1,54 @@
+description: >
+    Run Sonar scanner to report results.
+
+parameters:
+  sonar-url:
+    description: 'Host of the sonar scanner API'
+    type: string
+  token:
+    description: 'Sonar API token'
+    type: string
+  project-key:
+    description: 'Project key in Sonar for the project to scan'
+    type: string
+  version:
+    description: 'Project version'
+    type: string
+    default: $CIRCLE_SHA1
+  branch:
+    description: 'Branch name'
+    type: string
+    default: $CIRCLE_BRANCH
+
+
+steps:
+    - restore_cache:
+        keys:
+          - v1-sonarcloud-scanner-4.5.0.2216
+
+    - run:
+          name: SonarCloud
+          command: |
+            set -e
+            VERSION=4.5.0.2216
+            SCANNER_DIRECTORY=/tmp/cache/scanner
+            export SONAR_USER_HOME=$SCANNER_DIRECTORY/.sonar
+            OS="linux"
+            echo $SONAR_USER_HOME
+            if [[ ! -x "$SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner" ]]; then
+              curl -Ol https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$VERSION-$OS.zip
+              unzip -qq -o sonar-scanner-cli-$VERSION-$OS.zip -d $SCANNER_DIRECTORY
+            fi
+
+            chmod +x $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner
+            chmod +x $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/jre/bin/java
+            $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner \
+                -Dsonar.host.url=<< parameters.sonar-url >> \
+                -Dsonar.login=<< parameters.token >> \
+                -Dsonar.projectKey=<< parameters.project-key >> \
+                -Dsonar.projectVersion=<< parameters.version >> \
+                -Dsonar.branch.name=<< parameters.branch >>
+
+    - save_cache:
+        key: v1-sonarcloud-scanner-4.5.0.2216
+        paths: /tmp/cache/scanner
